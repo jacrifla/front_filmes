@@ -1,74 +1,56 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
 export default function Navbar() {
-  const [isNavCollapsed, setIsNavCollapsed] = useState(true)
-  const navigate = useNavigate()
-  const isLogged = !!localStorage.getItem('userToken')
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem('userToken')
-    navigate('/login')
-  }
-
-  const toggleNavbar = () => {
-    setIsNavCollapsed(!isNavCollapsed)
-  }
+    logout();
+    navigate('/login');
+  };
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-4">
-      <Link className="navbar-brand" to={isLogged ? "/home" : "/"}>
-        🎬 CineExplore
-      </Link>
+    <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-3">
+      <Link className="navbar-brand" to="/">CineExplore</Link>
 
-      <button
-        className="navbar-toggler"
-        type="button"
-        aria-controls="navbarContent"
-        aria-expanded={!isNavCollapsed}
-        aria-label="Toggle navigation"
-        onClick={toggleNavbar}
-      >
-        <span className="navbar-toggler-icon" />
-      </button>
-
-      <div className={`collapse navbar-collapse ${!isNavCollapsed ? 'show' : ''}`} id="navbarContent">
-        <ul className="navbar-nav ms-auto">
-          {!isLogged ? (
+      <div className="collapse navbar-collapse">
+        <ul className="navbar-nav me-auto">
+          {user && (
             <>
               <li className="nav-item">
-                <Link className="nav-link" to="/" onClick={toggleNavbar}>Filmes</Link>
+                <Link className="nav-link" to="/">Filmes</Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link" to="/login" onClick={toggleNavbar}>Login</Link>
+                <Link className="nav-link" to="/library">Biblioteca</Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link" to="/register" onClick={toggleNavbar}>Cadastrar</Link>
+                <Link className="nav-link" to="/profile">Perfil</Link>
               </li>
+            </>
+          )}
+        </ul>
+
+        <ul className="navbar-nav ms-auto">
+          {user ? (
+            <>
+              <span className="navbar-text me-3">Olá, {user.name} 👋</span>
+              <button className="btn btn-outline-light" onClick={handleLogout}>
+                Sair
+              </button>
             </>
           ) : (
             <>
               <li className="nav-item">
-                <Link className="nav-link" to="/home" onClick={toggleNavbar}>Home</Link>
+                <Link className="nav-link" to="/login">Entrar</Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link" to="/saved" onClick={toggleNavbar}>Salvos</Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/watched" onClick={toggleNavbar}>Assistidos</Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/settings" onClick={toggleNavbar}>Configurações</Link>
-              </li>
-              <li className="nav-item">
-                <button className="btn btn-outline-light ms-lg-3 mt-2 mt-lg-0" onClick={handleLogout}>
-                  Sair
-                </button>
+                <Link className="nav-link" to="/register">Cadastrar</Link>
               </li>
             </>
           )}
         </ul>
       </div>
     </nav>
-  )
+  );
 }

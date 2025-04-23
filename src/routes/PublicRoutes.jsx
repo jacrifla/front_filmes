@@ -1,9 +1,5 @@
-import { Navigate, Outlet } from "react-router-dom"
+import { Outlet } from "react-router-dom";
 
-const isLogged = () => {
-    return !!localStorage.getItem('token')
-}
-
-export default function PublicRoutes() {
-    return !isLogged() ? <Outlet /> : <Navigate to='/home' />
-}
+export default function PublicRoutes () {
+  return <Outlet />;
+};

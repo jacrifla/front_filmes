@@ -1,54 +1,114 @@
 import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { register } from '../services/authService';
+import { useAuth } from '../hooks/useAuth';
+import AuthBanner from '../components/auth/AuthBanner';
+import AuthCard from '../components/auth/AuthCard';
+import AuthInput from '../components/auth/AuthInput';
+import '../styles/auth.css';
 
-export default function Register() {
-  const [nome, setNome] = useState('');
-  const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
+const Register = () => {
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { setUser, setToken } = useAuth();
 
-  const handleRegister = (e) => {
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Cadastrando:', { nome, email, senha });
-    // Lógica para criar o usuário
+    setError('');
+    const { name, email, password, confirmPassword } = form;
+
+    if (!name || !email || !password || !confirmPassword) {
+      setError('Todos os campos são obrigatórios.');
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError('As senhas não coincidem.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await register({ name, email, password });
+      const {
+        data: { user, token },
+      } = response;
+
+      setUser(user);
+      setToken(token);
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+      navigate('/movies');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="container mt-5">
-      <h2>Cadastro</h2>
-      <form onSubmit={handleRegister}>
-        <div className="mb-3">
-          <label className="form-label">Nome</label>
-          <input
-            type="text"
-            className="form-control"
-            value={nome}
-            onChange={(e) => setNome(e.target.value)}
-            required
+    <div className="login-container">
+      <AuthBanner />
+
+      <AuthCard title="Criar conta">
+        {error && <div className="alert alert-danger mb-4">{error}</div>}
+
+        <form onSubmit={handleSubmit}>
+          <AuthInput
+            id="name"
+            label="Nome"
+            value={form.name}
+            onChange={handleChange}
           />
-        </div>
-        <div className="mb-3">
-          <label className="form-label">Email</label>
-          <input
+          <AuthInput
+            id="email"
+            label="E-mail"
             type="email"
-            className="form-control"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
+            value={form.email}
+            onChange={handleChange}
           />
-        </div>
-        <div className="mb-3">
-          <label className="form-label">Senha</label>
-          <input
+          <AuthInput
+            id="password"
+            label="Senha"
             type="password"
-            className="form-control"
-            value={senha}
-            onChange={(e) => setSenha(e.target.value)}
-            required
+            value={form.password}
+            onChange={handleChange}
           />
+          <AuthInput
+            id="confirmPassword"
+            label="Confirmar Senha"
+            type="password"
+            value={form.confirmPassword}
+            onChange={handleChange}
+          />
+
+          <button
+            type="submit"
+            className="btn btn-primary w-100 mb-3"
+            disabled={loading}
+          >
+            {loading ? 'Criando conta...' : 'Registrar'}
+          </button>
+        </form>
+
+        <div className="text-center">
+          <small>
+            Já tem uma conta? <Link to="/login">Faça login</Link>
+          </small>
         </div>
-        <button type="submit" className="btn btn-success">
-          Cadastrar
-        </button>
-      </form>
+      </AuthCard>
     </div>
   );
-}
+};
+
+export default Register;
