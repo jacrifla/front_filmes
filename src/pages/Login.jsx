@@ -27,7 +27,7 @@ const Login = () => {
       setToken(response.data.token);
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
-      navigate("/movies");
+      navigate("/");
     } catch (err) {
       setError(`Credenciais inválidas. Tente novamente. ${err}`);
     }

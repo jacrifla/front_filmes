@@ -48,7 +48,7 @@ const Register = () => {
       setToken(token);
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
-      navigate('/movies');
+      navigate('/');
     } catch (err) {
       setError(err.message);
     } finally {

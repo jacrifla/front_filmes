@@ -11,10 +11,24 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-3">
+    <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-3 fixed-top">
       <Link className="navbar-brand" to="/">CineExplore</Link>
 
-      <div className="collapse navbar-collapse">
+      {/* Botão do colapso no mobile */}
+      <button
+        className="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarContent"
+        aria-controls="navbarContent"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span className="navbar-toggler-icon"></span>
+      </button>
+
+      {/* Conteúdo colapsável */}
+      <div className="collapse navbar-collapse" id="navbarContent">
         <ul className="navbar-nav me-auto">
           {user && (
             <>
@@ -34,10 +48,14 @@ export default function Navbar() {
         <ul className="navbar-nav ms-auto">
           {user ? (
             <>
-              <span className="navbar-text me-3">Olá, {user.name} 👋</span>
-              <button className="btn btn-outline-light" onClick={handleLogout}>
-                Sair
-              </button>
+              <li className="nav-item d-flex align-items-center me-2">
+                <span className="navbar-text text-light">Olá, {user.name} 👋</span>
+              </li>
+              <li className="nav-item">
+                <button className="btn btn-outline-light" onClick={handleLogout}>
+                  Sair
+                </button>
+              </li>
             </>
           ) : (
             <>

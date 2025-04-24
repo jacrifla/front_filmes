@@ -21,7 +21,7 @@ export default function MovieList({
         return (
           <div 
             className="col-md-4 mb-4"
-            key={movie.id}
+            key={`${movie.id}-${index}`}
             ref={isLast ? lastMovieRef : null}
           >
             <MovieCard
