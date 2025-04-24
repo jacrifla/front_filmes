@@ -13,12 +13,32 @@ const useMovies = (user, token) => {
     const [watchlistMap, setWatchlistMap] = useState({});
     const [searchQuery, setSearchQuery] = useState('');
     const [searching, setSearching] = useState(false);
+    const [genres, setGenres] = useState([]);
+    const [selectedGenre, setSelectedGenre] = useState('');
+
+    useEffect(() => {
+        const fetchGenres = async () => {
+            try {
+                const data = await tmdbService.getGenres();
+                setGenres(data);
+            } catch (err) {
+                toast.error('Erro ao carregar gêneros.');
+                console.error(err);
+            }
+        };
+
+        fetchGenres();
+    }, []);
+
 
     // === TMDB ===
-    const fetchMovies = async (pageToLoad = 1) => {
+    const fetchMovies = async (pageToLoad = 1, genreId = selectedGenre) => {
         try {
             setLoading(true);
-            const data = await tmdbService.getPopularMovies(pageToLoad);
+            const params = { page: pageToLoad };
+            if (genreId) params.with_genres = genreId;
+
+            const data = await tmdbService.getPopularMoviesWithParams(params);
             setMovies((prev) => pageToLoad === 1 ? data.results : [...prev, ...data.results]);
             setTotalPages(data.total_pages);
         } catch (err) {
@@ -28,6 +48,7 @@ const useMovies = (user, token) => {
             setLoading(false);
         }
     };
+
 
     useEffect(() => {
         fetchMovies(page);
@@ -62,6 +83,14 @@ const useMovies = (user, token) => {
 
         fetchWatchlist();
     }, [user, token]);
+
+    const handleGenreChange = (e) => {
+        const value = e.target.value;
+        setSelectedGenre(value);
+        setPage(1);
+        fetchMovies(1, value);
+    };
+
 
     const handleSearchSubmit = async (e) => {
         e.preventDefault();
@@ -189,6 +218,9 @@ const useMovies = (user, token) => {
         setSearchQuery,
         handleSearchSubmit,
         searching,
+        genres,
+        handleGenreChange,
+        selectedGenre,
     };
 };
 

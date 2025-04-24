@@ -24,6 +24,9 @@ export default function Movies() {
     setSearchQuery,
     handleSearchSubmit,
     searching,
+    genres,
+    handleGenreChange,
+    selectedGenre,
   } = useMovies(user, token);
 
   if (loading && movies.length === 0)
@@ -32,19 +35,39 @@ export default function Movies() {
   return (
     <div className="container mt-4">
       <h2 className="mb-4">Filmes Populares</h2>
+      <div className="d-flex gap-3 align-items-end mb-4">
+        <div>
+          <label htmlFor="genreSelect" className="form-label">
+            Filtrar por gênero
+          </label>
+          <select
+            id="genreSelect"
+            className="form-select"
+            value={selectedGenre}
+            onChange={handleGenreChange}
+          >
+            <option value="">Todos os gêneros</option>
+            {genres.map((genre) => (
+              <option key={genre.id} value={genre.id}>
+                {genre.name}
+              </option>
+            ))}
+          </select>
+        </div>
 
-      <form onSubmit={handleSearchSubmit} className="d-flex mb-4">
-        <input
-          type="text"
-          className="form-control me-2"
-          placeholder="Buscar por título, diretor ou ator"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-        <button type="submit" className="btn btn-primary">
-          Buscar
-        </button>
-      </form>
+        <form onSubmit={handleSearchSubmit} className="d-flex flex-grow-1">
+          <input
+            type="text"
+            className="form-control me-2"
+            placeholder="Buscar por título, diretor ou ator"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <button type="submit" className="btn btn-primary">
+            Buscar
+          </button>
+        </form>
+      </div>
 
       {!searching && (
         <InfiniteScroll

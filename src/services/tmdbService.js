@@ -59,6 +59,17 @@ export async function getMovieCredits(movieId) {
   return data;
 }
 
+// Buscar gêneros
+export async function getGenres() {
+  const data = await fetchFromTMDB('/genre/movie/list');
+  return data.genres;
+}
+
+export async function getPopularMoviesWithParams(params = {}) {
+  const data = await fetchFromTMDB('/discover/movie', params);
+  return data;
+}
+
 // Exportando um objeto padrão
 export default {
   getPopularMovies,
@@ -67,4 +78,6 @@ export default {
   searchMovies,
   getMovieDetails,
   getMovieCredits,
+  getGenres,
+  getPopularMoviesWithParams,
 };
