@@ -11,6 +11,8 @@ const useMovies = (user, token) => {
     const [loading, setLoading] = useState(false);
     const [ratings, setRatings] = useState([]);
     const [watchlistMap, setWatchlistMap] = useState({});
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searching, setSearching] = useState(false);
 
     // === TMDB ===
     const fetchMovies = async (pageToLoad = 1) => {
@@ -60,6 +62,29 @@ const useMovies = (user, token) => {
 
         fetchWatchlist();
     }, [user, token]);
+
+    const handleSearchSubmit = async (e) => {
+        e.preventDefault();
+        if (!searchQuery.trim()) {
+            setSearching(false);
+            setPage(1);
+            fetchMovies(1);
+            return;
+        }
+
+        try {
+            setLoading(true);
+            setSearching(true);
+            const results = await tmdbService.searchMovies(searchQuery.trim(), 1);
+            setMovies(results);
+            setTotalPages(1);
+        } catch (err) {
+            toast.error('Erro ao buscar filmes.');
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     // === WATCHLIST HANDLERS ===
     const handleAddToWatchlist = async (movie, status = 'watchlist') => {
@@ -160,6 +185,10 @@ const useMovies = (user, token) => {
         handleComment,
         setPage,
         loadMoreMovies,
+        searchQuery,
+        setSearchQuery,
+        handleSearchSubmit,
+        searching,
     };
 };
 
