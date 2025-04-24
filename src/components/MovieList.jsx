@@ -10,13 +10,20 @@ export default function MovieList({
   handleRateMovie,
   handleComment,
   watchlistMap,
+  lastMovieRef,
 }) {
   return (
     <div className="row">
-      {movies.map((movie) => {
+      {movies.map((movie, index) => {
         const userRating = ratings.find((r) => r.tmdbId === movie.id);
+        const isLast = index === movies.length - 1;
+
         return (
-          <div className="col-md-4 mb-4" key={movie.id}>
+          <div 
+            className="col-md-4 mb-4"
+            key={movie.id}
+            ref={isLast ? lastMovieRef : null}
+          >
             <MovieCard
               movie={movie}
               isLoggedIn={!!user}

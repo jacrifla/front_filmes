@@ -12,17 +12,36 @@ const useMovies = (user, token) => {
     const [ratings, setRatings] = useState([]);
     const [watchlistMap, setWatchlistMap] = useState({});
 
+    const loadMoreMovies = async () => {
+        if (page < totalPages) {
+            setPage((prev) => prev + 1);
+        }
+    }
+
     // Fetch TMDB
     useEffect(() => {
+        const prevScrollY = window.scrollY;
+
         setLoading(true);
         tmdbService
             .getPopularMovies(page)
             .then((data) => {
-                setMovies(data.results);
+                setMovies((prev) => (page === 1 ? data.results : [...prev, ...data.results]));
                 setTotalPages(data.total_pages);
             })
             .catch((err) => console.error(err))
-            .finally(() => setLoading(false));
+            .finally(() => {
+                setLoading(false)
+
+                if (page > 1) {
+                    setTimeout(() => {
+                        window.scrollTo({
+                            top: prevScrollY,
+                            behavior: 'auto'
+                        });
+                    }, 0);
+                }
+            });
     }, [page]);
 
     // Fetch Ratings
@@ -36,12 +55,12 @@ const useMovies = (user, token) => {
 
     useEffect(() => {
         if (!user || !token) return;
-    
+
         const fetchWatchlist = async () => {
             try {
                 const data = await watchlistService.getUserWatchlist(token);
                 const map = {};
-                data.forEach((item) => {                    
+                data.forEach((item) => {
                     map[item.tmdbId] = item.status;
                 });
                 setWatchlistMap(map);
@@ -49,9 +68,9 @@ const useMovies = (user, token) => {
                 toast.error(`Erro ao carregar lista do usuário. ${err}`);
             }
         };
-    
+
         fetchWatchlist();
-    }, [user, token, page]);    
+    }, [user, token]);
 
     // Handlers integrados com watchlistService
     const handleAddToWatchlist = async (movie, status = 'watchlist') => {
@@ -90,7 +109,7 @@ const useMovies = (user, token) => {
                 const next = { ...prev };
                 delete next[movie.id];
                 return next;
-              });
+            });
 
             toast.info(`"${movie.title}" removido da sua lista.`);
         } catch (err) {
@@ -159,6 +178,7 @@ const useMovies = (user, token) => {
         handleRateMovie,
         handleComment,
         setPage,
+        loadMoreMovies,
     };
 };
 
