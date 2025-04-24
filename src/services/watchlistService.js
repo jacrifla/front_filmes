@@ -46,5 +46,19 @@ export const watchlistService = {
     if (!res.ok) throw new Error(data.message || 'Erro ao remover item');
 
     return data.data;
-  }
+  },
+
+  async getUserMediaWatchlist(token) {
+    const res = await fetch(`${ENDPOINT}/library`, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      }
+    })
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.message || 'Erro ao buscar biblioteca');
+
+    return data.data;
+  },    
 };

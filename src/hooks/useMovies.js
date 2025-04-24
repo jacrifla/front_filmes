@@ -8,51 +8,42 @@ const useMovies = (user, token) => {
     const [movies, setMovies] = useState([]);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [ratings, setRatings] = useState([]);
     const [watchlistMap, setWatchlistMap] = useState({});
 
-    const loadMoreMovies = async () => {
-        if (page < totalPages) {
-            setPage((prev) => prev + 1);
+    // === TMDB ===
+    const fetchMovies = async (pageToLoad = 1) => {
+        try {
+            setLoading(true);
+            const data = await tmdbService.getPopularMovies(pageToLoad);
+            setMovies((prev) => pageToLoad === 1 ? data.results : [...prev, ...data.results]);
+            setTotalPages(data.total_pages);
+        } catch (err) {
+            toast.error('Erro ao carregar filmes.');
+            console.error(err);
+        } finally {
+            setLoading(false);
         }
-    }
+    };
 
-    // Fetch TMDB
     useEffect(() => {
-        const prevScrollY = window.scrollY;
-
-        setLoading(true);
-        tmdbService
-            .getPopularMovies(page)
-            .then((data) => {
-                setMovies((prev) => (page === 1 ? data.results : [...prev, ...data.results]));
-                setTotalPages(data.total_pages);
-            })
-            .catch((err) => console.error(err))
-            .finally(() => {
-                setLoading(false)
-
-                if (page > 1) {
-                    setTimeout(() => {
-                        window.scrollTo({
-                            top: prevScrollY,
-                            behavior: 'auto'
-                        });
-                    }, 0);
-                }
-            });
+        fetchMovies(page);
     }, [page]);
 
-    // Fetch Ratings
+    const loadMoreMovies = () => {
+        if (page < totalPages) setPage((prev) => prev + 1);
+    };
+
+    // === RATINGS ===
     useEffect(() => {
         if (!user || !token) return;
-        ratingService
-            .getRatingsByUser(user.id, token)
-            .then((res) => setRatings(res))
+        ratingService.getRatingsByUser(user.id, token)
+            .then(setRatings)
             .catch((err) => toast.error(err.message));
     }, [user, token]);
 
+    // === WATCHLIST ===
     useEffect(() => {
         if (!user || !token) return;
 
@@ -60,9 +51,7 @@ const useMovies = (user, token) => {
             try {
                 const data = await watchlistService.getUserWatchlist(token);
                 const map = {};
-                data.forEach((item) => {
-                    map[item.tmdbId] = item.status;
-                });
+                data.forEach((item) => { map[item.tmdbId] = item.status; });
                 setWatchlistMap(map);
             } catch (err) {
                 toast.error(`Erro ao carregar lista do usuário. ${err}`);
@@ -72,7 +61,7 @@ const useMovies = (user, token) => {
         fetchWatchlist();
     }, [user, token]);
 
-    // Handlers integrados com watchlistService
+    // === WATCHLIST HANDLERS ===
     const handleAddToWatchlist = async (movie, status = 'watchlist') => {
         try {
             await watchlistService.addToWatchlist({
@@ -84,18 +73,12 @@ const useMovies = (user, token) => {
                 status,
             });
 
-            setWatchlistMap((prev) => ({
-                ...prev,
-                [movie.id]: status,
-            }));
-
-            const actionText = status === 'watched' ? 'marcado como assistido' : 'adicionado à sua lista de desejo';
-            toast.success(`"${movie.title}" foi ${actionText}!`);
+            setWatchlistMap((prev) => ({ ...prev, [movie.id]: status }));
+            toast.success(`"${movie.title}" foi ${status === 'watched' ? 'marcado como assistido' : 'adicionado à sua lista de desejo'}!`);
         } catch (err) {
             toast.error(err.message);
         }
     };
-
 
     const handleRemoveFromWatchlist = async (movie) => {
         try {
@@ -105,10 +88,10 @@ const useMovies = (user, token) => {
                 type: 'movie',
             });
 
-            setWatchlistMap(prev => {
-                const next = { ...prev };
-                delete next[movie.id];
-                return next;
+            setWatchlistMap((prev) => {
+                const copy = { ...prev };
+                delete copy[movie.id];
+                return copy;
             });
 
             toast.info(`"${movie.title}" removido da sua lista.`);
@@ -117,9 +100,10 @@ const useMovies = (user, token) => {
         }
     };
 
+    // === RATING HANDLERS ===
     const handleRateMovie = async (movieId, rating) => {
-        if (!user || !token)
-            return toast.error('Você precisa estar logado para avaliar.');
+        if (!user || !token) return toast.error('Você precisa estar logado para avaliar.');
+
         try {
             await ratingService.addOrUpdateRating({
                 token,
@@ -129,19 +113,16 @@ const useMovies = (user, token) => {
                 rating,
                 comment: '',
             });
-            toast.success(
-                `Você avaliou com ${rating} estrela${rating > 1 ? 's' : ''}!`
-            );
+
+            toast.success(`Você avaliou com ${rating} estrela${rating > 1 ? 's' : ''}!`);
         } catch (err) {
             toast.error(err.message);
         }
     };
 
     const handleComment = async (movieId, comment) => {
-        if (!user || !token)
-            return toast.error('Você precisa estar logado para comentar.');
+        if (!user || !token) return toast.error('Você precisa estar logado para comentar.');
 
-        // recupera nota anterior (ou 0)
         const existing = ratings.find((r) => r.tmdbId === movieId);
         const prevRating = existing?.rating || 0;
 
@@ -155,12 +136,12 @@ const useMovies = (user, token) => {
                 comment,
             });
 
-            toast.success('Comentário salvo!');
-            // atualiza localmente o estado para re-renderizar
             setRatings((rs) => {
                 const others = rs.filter((r) => r.tmdbId !== movieId);
                 return [...others, updated];
             });
+
+            toast.success('Comentário salvo!');
         } catch (err) {
             toast.error(err.message);
         }
