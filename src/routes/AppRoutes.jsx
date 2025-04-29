@@ -8,6 +8,7 @@ import ResetPassword from "../pages/ResetPassword";
 import Register from "../pages/Register";
 import Library from "../pages/Library";
 import Movies from "../pages/Movies";
+import Series from "../pages/Series";
 
 export default function AppRoutes() {
   return (
@@ -18,6 +19,7 @@ export default function AppRoutes() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/register" element={<Register />} />
         <Route path="/" element={<Movies />} />
+        <Route path="/series" element={<Series />} />
         {/* outras rotas publicas */}
       </Route>
 
