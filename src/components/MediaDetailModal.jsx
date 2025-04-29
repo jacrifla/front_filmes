@@ -3,83 +3,92 @@ import { Modal, Button } from 'react-bootstrap';
 import tmdbService from '../services/tmdbService';
 import '../styles/movieDetailModal.css';
 
-const MovieDetailModal = ({ movieId, show, onHide }) => {
-  const [movieDetails, setMovieDetails] = useState(null);
+const MediaDetailModal = ({ mediaId, mediaType, show, onHide }) => {
+  const [details, setDetails] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!movieId) return;
+    if (!mediaId || !mediaType) return;
+
     const fetchDetails = async () => {
       try {
-        // Busca detalhes básicos e créditos
-        const details = await tmdbService.getMovieDetails(movieId);
-        const creditsData = await tmdbService.getMovieCredits(movieId);
+        const getDetails = mediaType === 'movie'
+          ? tmdbService.getMovieDetails
+          : tmdbService.getSeriesDetails;
 
-        // Extrai diretor dos créditos
-        const director = creditsData.crew.find(person => person.job === 'Director');
+        const getCredits = mediaType === 'movie'
+          ? tmdbService.getMovieCredits
+          : tmdbService.getSeriesCredits;
 
-        setMovieDetails({
-          ...details,
+        const detailsData = await getDetails(mediaId);
+        const creditsData = await getCredits(mediaId);
+
+        const director = mediaType === 'movie'
+          ? creditsData.crew.find(person => person.job === 'Director')
+          : null;
+
+        setDetails({
+          ...detailsData,
           cast: creditsData.cast,
           director: director?.name || 'Não disponível',
         });
       } catch (error) {
-        console.error('Erro ao buscar detalhes do filme:', error);
+        console.error(`Erro ao buscar detalhes da ${mediaType}:`, error);
       } finally {
         setLoading(false);
       }
     };
+
     fetchDetails();
-  }, [movieId]);
+  }, [mediaId, mediaType]);
 
   return (
     <Modal show={show} onHide={onHide} size="lg" centered contentClassName="bg-dark-custom">
       <Modal.Header closeButton>
         <Modal.Title>
-          {loading ? 'Carregando...' : movieDetails?.title}
+          {loading ? 'Carregando...' : details?.title || details?.name}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
         {loading && <p>Carregando detalhes...</p>}
-        {!loading && !movieDetails && <p>Erro ao carregar detalhes do filme.</p>}
-
-        {!loading && movieDetails && (
+        {!loading && !details && <p>Erro ao carregar detalhes.</p>}
+        {!loading && details && (
           <div className="row">
             <div className="col-md-4">
               <img
-                src={`https://image.tmdb.org/t/p/w500${movieDetails.poster_path}`}
-                alt={movieDetails.title}
+                src={`https://image.tmdb.org/t/p/w500${details.poster_path}`}
+                alt={details.title || details.name}
                 className="img-fluid rounded"
               />
             </div>
             <div className="col-md-8">
               <h5 className="text-dark">Sinopse:</h5>
-              <p className="text-dark">{movieDetails.overview || 'Não disponível'}</p>
+              <p className="text-dark">{details.overview || 'Não disponível'}</p>
 
               <h5 className="text-dark">Data de Lançamento:</h5>
               <p className="text-dark">
-                {movieDetails.release_date
-                  ? new Date(movieDetails.release_date).toLocaleDateString('pt-BR')
+                {details.release_date || details.first_air_date
+                  ? new Date(details.release_date || details.first_air_date).toLocaleDateString('pt-BR')
                   : 'Não disponível'}
               </p>
 
               <h5 className="text-dark">Gêneros:</h5>
-              <p className="text-dark">
-                {movieDetails.genres?.map(g => g.name).join(', ')}
-              </p>
+              <p className="text-dark">{details.genres?.map(g => g.name).join(', ')}</p>
 
-              <h5 className="text-dark">Diretor:</h5>
-              <p className="text-dark">{movieDetails.director}</p>
+              {mediaType === 'movie' && (
+                <>
+                  <h5 className="text-dark">Diretor:</h5>
+                  <p className="text-dark">{details.director}</p>
+                </>
+              )}
 
               <h5 className="text-dark">Avaliação Média (TMDB):</h5>
-              <p className="text-dark">
-                {movieDetails.vote_average?.toFixed(1)} / 10
-              </p>
+              <p className="text-dark">{details.vote_average?.toFixed(1)} / 10</p>
 
-              {movieDetails.imdb_id && (
+              {details.imdb_id && (
                 <p>
                   <a
-                    href={`https://www.imdb.com/title/${movieDetails.imdb_id}`}
+                    href={`https://www.imdb.com/title/${details.imdb_id}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -90,7 +99,7 @@ const MovieDetailModal = ({ movieId, show, onHide }) => {
 
               <h5 className="text-dark">Elenco:</h5>
               <ul>
-                {movieDetails.cast?.slice(0, 5).map(actor => (
+                {details.cast?.slice(0, 5).map(actor => (
                   <li key={actor.id}>{actor.name}</li>
                 ))}
               </ul>
@@ -107,4 +116,4 @@ const MovieDetailModal = ({ movieId, show, onHide }) => {
   );
 };
 
-export default MovieDetailModal;
+export default MediaDetailModal;

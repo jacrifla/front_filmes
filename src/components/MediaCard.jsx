@@ -2,15 +2,16 @@ import React, { useState } from 'react';
 import ActionButtons from './ActionButtons';
 import RatingStars from './RatingStars';
 import CommentBox from './CommentBox';
-import MovieDetailModal from './MovieDetailModal';
+import MediaDetailModal from './MediaDetailModal';
 import '../styles/movieCard.css';
 
-const MovieCard = ({
-  movie,
+const MediaCard = ({
+  media,
+  mediaType,
   isLoggedIn,
   onAdd,
   onRemove,
-  onRate,
+  handleRateMedia,
   onComment,
   userRating,
   userComment,
@@ -22,36 +23,37 @@ const MovieCard = ({
     <>
       <div className="card movie-card-dark h-100 shadow-lg">
         <img
-          src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+          src={`https://image.tmdb.org/t/p/w500${media.poster_path}`}
           className={`card-img-top ${watchlistStatus === 'watched' ? 'img-watched' : ''}`}
-          alt={movie.title}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.transform = 'scale(1.05)')
-          }
+          alt={media.title || media.name}
+          onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
           onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
           onClick={() => setShowModal(true)}
         />
         <div className="card-body d-flex flex-column justify-content-between">
-          <h5 className="card-title text-truncate">{movie.title}</h5>
+          <h5 className="card-title text-truncate">{media.title || media.name}</h5>
           {isLoggedIn && (
             <>
-              <ActionButtons movie={movie} onAdd={onAdd} onRemove={onRemove} status={watchlistStatus} />
+              <ActionButtons media={media} onAdd={onAdd} onRemove={onRemove} status={watchlistStatus} />
               <RatingStars
-                movieId={movie.id}
-                onRate={onRate}
+                mediaId={media.id}
+                handleRateMedia={handleRateMedia}
                 initialRating={userRating}
               />
-              <CommentBox movieId={movie.id} 
-              initialComment={userComment}
-              onSubmitComment={onComment} />
+              <CommentBox
+                mediaId={media.id}
+                initialComment={userComment}
+                onSubmitComment={onComment}
+              />
             </>
           )}
         </div>
       </div>
 
       {showModal && (
-        <MovieDetailModal
-          movieId={movie.id}
+        <MediaDetailModal
+          mediaId={media.id}
+          mediaType={mediaType}
           show={showModal}
           onHide={() => setShowModal(false)}
         />
@@ -60,4 +62,4 @@ const MovieCard = ({
   );
 };
 
-export default MovieCard;
+export default MediaCard;

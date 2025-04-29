@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-const CommentBox = ({ movieId, initialComment = '', onSubmitComment }) => {
+const CommentBox = ({ mediaId, initialComment = '', onSubmitComment }) => {
   const [comment, setComment] = useState('');
 
   useEffect(() => {
@@ -10,7 +10,7 @@ const CommentBox = ({ movieId, initialComment = '', onSubmitComment }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!comment.trim()) return;
-    onSubmitComment(movieId, comment);
+    onSubmitComment(mediaId, comment);
   };
 
   return (

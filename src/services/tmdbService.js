@@ -100,7 +100,12 @@ export const getSeriesCredits = async (seriesId) => {
 
 // Séries com Parâmetros
 export const getPopularSeriesWithParams = async (params = {}) => {
-  return fetchFromTMDB('/discover/tv', params);
+  const defaultParams = {
+    sort_by: 'popularity.desc',
+    without_genres: '10764,10767,10763,99',
+    ...params,
+  };
+  return fetchFromTMDB('/discover/tv', defaultParams);
 };
 
 /* ================= GÊNEROS ================= */

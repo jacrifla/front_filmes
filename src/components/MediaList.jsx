@@ -1,39 +1,39 @@
 import React from 'react';
-import MovieCard from './MovieCard';
+import MediaCard from './MediaCard';
 
-export default function MovieList({
-  movies,
+export default function MediaList({
+  mediaList,
   ratings,
   user,
   handleAddToWatchlist,
   handleRemoveFromWatchlist,
-  handleRateMovie,
+  handleRateMedia,
   handleComment,
   watchlistMap,
-  lastMovieRef,
+  lastMediaRef,
 }) {
   return (
     <div className="row">
-      {movies.map((movie, index) => {
-        const userRating = ratings.find((r) => r.tmdbId === movie.id);
-        const isLast = index === movies.length - 1;
+      {mediaList.map((media, index) => {
+        const userRating = ratings.find((r) => r.tmdbId === media.id);
+        const isLast = index === mediaList.length - 1;
 
         return (
-          <div 
+          <div
             className="col-md-4 mb-4"
-            key={`${movie.id}-${index}`}
-            ref={isLast ? lastMovieRef : null}
+            key={`${media.id}-${index}`}
+            ref={isLast ? lastMediaRef : null}
           >
-            <MovieCard
-              movie={movie}
+            <MediaCard
+              media={media}
               isLoggedIn={!!user}
               userRating={userRating?.rating || 0}
               userComment={userRating?.comment || ''}
               onAdd={handleAddToWatchlist}
               onRemove={handleRemoveFromWatchlist}
-              onRate={handleRateMovie}
+              handleRateMedia={handleRateMedia}
               onComment={handleComment}
-              watchlistStatus={watchlistMap[movie.id]}
+              watchlistStatus={watchlistMap[media.id]}
             />
           </div>
         );

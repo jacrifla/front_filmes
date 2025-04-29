@@ -5,11 +5,12 @@ import MediaList from '../components/MediaList';
 import FilterBar from '../components/FilterBar';
 import ScrollToTopButton from '../components/ScrollToTopButton';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { Container } from 'react-bootstrap';
 
-export default function Movies() {
+export default function Series() {
   const { user, token } = useAuth();
   const {
-    media,
+    media: series,
     page,
     totalPages,
     loading,
@@ -20,7 +21,7 @@ export default function Movies() {
     handleRateMedia,
     handleComment,
     setPage,
-    loadMoreMovies,
+    loadMoreMedia,
     searchQuery,
     setSearchQuery,
     handleSearchSubmit,
@@ -28,14 +29,14 @@ export default function Movies() {
     genres,
     handleGenreChange,
     selectedGenre,
-  } = useMedia(user, token, 'movie');
+  } = useMedia(user, token, 'series');
 
-  if (loading && media.length === 0)
-    return <p className="text-center mt-5">Carregando filmes...</p>;
+  if (loading && series.length === 0)
+    return <p className="text-center mt-5">Carregando séries...</p>;
 
   return (
-    <div className="container mt-4">
-      <h2 className="mb-4">Filmes Populares</h2>
+    <Container className="my-4">
+      <h2 className="mb-4 text-center">Séries Populares</h2>
 
       <FilterBar
         genres={genres}
@@ -48,19 +49,19 @@ export default function Movies() {
 
       {!searching && (
         <InfiniteScroll
-          dataLength={media.length}
+          dataLength={series.length}
           next={() => {
             setPage((prev) => prev + 1);
-            loadMoreMovies();
+            loadMoreMedia();
           }}
           hasMore={page < totalPages}
-          loader={<p className="text-center">Carregando mais filmes...</p>}
+          loader={<p className="text-center">Carregando mais séries...</p>}
           endMessage={
             <p className="text-center">Você chegou ao fim da lista 🎉</p>
           }
         >
           <MediaList
-            mediaList={media}
+            mediaList={series}
             ratings={ratings}
             user={user}
             handleAddToWatchlist={handleAddToWatchlist}
@@ -74,7 +75,7 @@ export default function Movies() {
 
       {searching && (
         <MediaList
-          media={media}
+          mediaList={series}
           ratings={ratings}
           user={user}
           handleAddToWatchlist={handleAddToWatchlist}
@@ -86,6 +87,6 @@ export default function Movies() {
       )}
 
       <ScrollToTopButton />
-    </div>
+    </Container>
   );
 }

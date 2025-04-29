@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-const RatingStars = ({ movieId, onRate, initialRating = 0 }) => {
+const RatingStars = ({ mediaId, handleRateMedia, initialRating = 0 }) => {
   const [hovered, setHovered] = useState(0);
   const [rating, setRating] = useState(initialRating);
 
@@ -10,7 +10,7 @@ const RatingStars = ({ movieId, onRate, initialRating = 0 }) => {
 
   const handleClick = (value) => {
     setRating(value);
-    onRate(movieId, value);
+    handleRateMedia(mediaId, value);
   };
 
   return (

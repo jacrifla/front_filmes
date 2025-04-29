@@ -20,7 +20,10 @@ export default function useMedia(user, token, type = 'movie') {
   useEffect(() => {
     const fetchGenres = async () => {
       try {
-        const data = await tmdbService.getGenres(type);
+        const data = type === 'movie' 
+        ? await tmdbService.getGenres(type)
+        : await tmdbService.getSeriesGenres(type);
+               
         setGenres(data);
       } catch (err) {
         toast.error('Erro ao carregar gêneros.');
