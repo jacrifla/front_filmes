@@ -69,6 +69,7 @@ export default function Series() {
             handleRateMedia={handleRateMedia}
             handleComment={handleComment}
             watchlistMap={watchlistMap}
+            mediaType="series"
           />
         </InfiniteScroll>
       )}
@@ -83,6 +84,7 @@ export default function Series() {
           handleRateMedia={handleRateMedia}
           handleComment={handleComment}
           watchlistMap={watchlistMap}
+          mediaType="series"
         />
       )}
 

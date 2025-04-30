@@ -11,6 +11,7 @@ export default function MediaList({
   handleComment,
   watchlistMap,
   lastMediaRef,
+  mediaType
 }) {
   return (
     <div className="row">
@@ -26,6 +27,7 @@ export default function MediaList({
           >
             <MediaCard
               media={media}
+              mediaType={mediaType}
               isLoggedIn={!!user}
               userRating={userRating?.rating || 0}
               userComment={userRating?.comment || ''}

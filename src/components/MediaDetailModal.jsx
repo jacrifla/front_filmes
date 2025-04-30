@@ -56,7 +56,7 @@ const MediaDetailModal = ({ mediaId, mediaType, show, onHide }) => {
           <div className="row">
             <div className="col-md-4">
               <img
-                src={`https://image.tmdb.org/t/p/w500${details.poster_path}`}
+                src={`https://image.tmdb.org/t/p/w500${details.poster_path || details.imageUrl}`}
                 alt={details.title || details.name}
                 className="img-fluid rounded"
               />
@@ -88,7 +88,7 @@ const MediaDetailModal = ({ mediaId, mediaType, show, onHide }) => {
               {details.imdb_id && (
                 <p>
                   <a
-                    href={`https://www.imdb.com/title/${details.imdb_id}`}
+                    href={`https://www.imdb.com/title/${details.imdb_id || details.imdbId}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >

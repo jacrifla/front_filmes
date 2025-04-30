@@ -1,83 +1,108 @@
-import { useEffect, useState, useCallback } from 'react';
-import { useAuth } from '../hooks/useAuth';
-import { watchlistService } from '../services/watchlistService';
-import WatchedMovies from '../components/WatchedMovies';
+import { useState, useEffect, useCallback } from 'react';
 import Watchlist from '../components/Watchlist';
-import { toast } from 'react-toastify';
-import '../styles/library.css';
+import WatchedMovies from '../components/WatchedMovies';
+import MediaDetailModal from '../components/MediaDetailModal';
+import { watchlistService } from '../services/watchlistService';
+import { useAuth } from '../hooks/useAuth';
 
 export default function Library() {
-  const { user, token } = useAuth();
-  const [activeTab, setActiveTab] = useState('watched');
+  const { token } = useAuth();
+  const [activeTab, setActiveTab] = useState('watchlist');
   const [watchlist, setWatchlist] = useState([]);
-  const [watchedMovies, setWatchedMovies] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [watchedList, setWatchedList] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedMediaId, setSelectedMediaId] = useState(null);
+  const [selectedMediaType, setSelectedMediaType] = useState(null);
 
-  // Fetch library data
-  const fetchLibrary = useCallback(async () => {
-    if (!user || !token) return;
-    setLoading(true);
+  const refreshLists = useCallback(async () => {
     try {
-      const data = await watchlistService.getUserMediaWatchlist(token);
-      const watchlistData = data.filter((item) => item.status === 'watchlist');
-      const watchedData = data.filter((item) => item.status === 'watched');
-      setWatchlist(watchlistData);
-      setWatchedMovies(watchedData);
-    } catch (err) {
-      toast.error(`Erro ao carregar sua biblioteca: ${err.message}`);
-    } finally {
-      setLoading(false);
+      const allMedia = await watchlistService.getUserMediaWatchlist(token);
+      setWatchlist(allMedia.filter((item) => item.status === 'watchlist'));
+      setWatchedList(allMedia.filter((item) => item.status === 'watched'));
+    } catch (error) {
+      console.error('Erro ao buscar dados da lista:', error.message);
     }
-  }, [user, token]);
+  }, [token]);
 
   useEffect(() => {
-    fetchLibrary();
-  }, [fetchLibrary]);
+    if (token) refreshLists();
+  }, [token, refreshLists]);
 
-  if (loading)
-    return (
-      <p className="text-center mt-5 text-light">Carregando biblioteca...</p>
-    );
+  const handleCardClick = (media) => {
+    setSelectedMediaId(media.tmdbId);
+    setSelectedMediaType(media.type);
+    setShowModal(true);
+  };
+
+  const handleAdd = async (media, newStatus) => {
+    try {
+      await watchlistService.addToWatchlist({
+        token,
+        tmdbId: media.tmdbId,
+        type: media.type,
+        title: media.title,
+        imageUrl: media.imageUrl,
+        status: newStatus,
+      });
+
+      await refreshLists();
+    } catch (err) {
+      console.error('Erro ao adicionar:', err.message);
+    }
+  };
+
+  const handleRemove = async (media) => {
+    try {
+      await watchlistService.removeFromWatchlist({
+        token,
+        tmdbId: media.tmdbId,
+        type: media.type,
+      });
+
+      await refreshLists();
+    } catch (err) {
+      console.error('Erro ao remover:', err.message);
+    }
+  };
 
   return (
-    <div className="container mt-4 bg-dark text-light p-4 rounded shadow">
-      <h2>Minha Biblioteca</h2>
-
-      <ul className="nav nav-tabs mt-3">
+    <div className="container mt-4">
+      <ul className="nav nav-tabs mb-4">
         <li className="nav-item">
           <button
-            className={`nav-link ${
-              activeTab === 'watched'
-                ? 'active bg-light text-dark'
-                : 'text-light'
-            }`}
-            style={{ cursor: 'pointer' }}
-            onClick={() => setActiveTab('watched')}
+            className={`nav-link ${activeTab === 'watchlist' ? 'active' : ''}`}
+            onClick={() => setActiveTab('watchlist')}
           >
-            Assistidos ({watchedMovies.length})
+            Quero assistir ({watchlist?.length || 0})
           </button>
         </li>
         <li className="nav-item">
           <button
-            className={`nav-link ${
-              activeTab === 'watchlist'
-                ? 'active bg-light text-dark'
-                : 'text-light'
-            }`}
-            style={{ cursor: 'pointer' }}
-            onClick={() => setActiveTab('watchlist')}
+            className={`nav-link ${activeTab === 'watched' ? 'active' : ''}`}
+            onClick={() => setActiveTab('watched')}
           >
-            Quero Assistir ({watchlist.length})
+            Assistidos ({watchedList.length || 0})
           </button>
         </li>
       </ul>
 
-      <div className="tab-content mt-3">
-        {activeTab === 'watched' && <WatchedMovies movies={watchedMovies} />}
-        {activeTab === 'watchlist' && (
-          <Watchlist movies={watchlist} onRefresh={fetchLibrary} />
-        )}
-      </div>
+      {activeTab === 'watchlist' ? (
+        <Watchlist
+          media={watchlist}
+          onCardClick={handleCardClick}
+          onAdd={handleAdd}
+          onRemove={handleRemove}
+        />
+      ) : (
+        <WatchedMovies media={watchedList} onCardClick={handleCardClick} />
+      )}
+
+      <MediaDetailModal
+        mediaId={selectedMediaId}
+        mediaType={selectedMediaType}
+        show={showModal}
+        onHide={() => setShowModal(false)}
+      />
     </div>
   );
 }

@@ -108,7 +108,6 @@ export default function Profile() {
       <div className="stats">
         <div>Assistidos: {stats.watched}</div>
         <div>Na lista: {stats.watchlist}</div>
-        <div>Avaliações: {stats.ratings}</div>
       </div>
 
       <div className="card profile-card">

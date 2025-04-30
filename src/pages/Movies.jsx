@@ -20,7 +20,7 @@ export default function Movies() {
     handleRateMedia,
     handleComment,
     setPage,
-    loadMoreMovies,
+    loadMoreMedia,
     searchQuery,
     setSearchQuery,
     handleSearchSubmit,
@@ -51,7 +51,7 @@ export default function Movies() {
           dataLength={media.length}
           next={() => {
             setPage((prev) => prev + 1);
-            loadMoreMovies();
+            loadMoreMedia();
           }}
           hasMore={page < totalPages}
           loader={<p className="text-center">Carregando mais filmes...</p>}
@@ -68,6 +68,7 @@ export default function Movies() {
             handleRateMedia={handleRateMedia}
             handleComment={handleComment}
             watchlistMap={watchlistMap}
+            mediaType='movie'
           />
         </InfiniteScroll>
       )}
@@ -82,6 +83,7 @@ export default function Movies() {
           handleRateMedia={handleRateMedia}
           handleComment={handleComment}
           watchlistMap={watchlistMap}
+          mediaType='movie'
         />
       )}
 
