@@ -54,7 +54,7 @@ export default function Library() {
             style={{ cursor: 'pointer' }}
             onClick={() => setActiveTab('watched')}
           >
-            Assistidos
+            Assistidos ({watchedMovies.length})
           </button>
         </li>
         <li className="nav-item">
@@ -67,7 +67,7 @@ export default function Library() {
             style={{ cursor: 'pointer' }}
             onClick={() => setActiveTab('watchlist')}
           >
-            Quero Assistir
+            Quero Assistir ({watchlist.length})
           </button>
         </li>
       </ul>
