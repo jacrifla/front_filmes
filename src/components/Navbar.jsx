@@ -10,9 +10,21 @@ export default function Navbar() {
     navigate('/login');
   };
 
+  const closeNavbar = () => {
+    const navbar = document.getElementById('navbarContent');
+    if (navbar && navbar.classList.contains('show')) {
+      const bsCollapse = new window.bootstrap.Collapse(navbar, {
+        toggle: false,
+      });
+      bsCollapse.hide();
+    }
+  };
+
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-3 fixed-top">
-      <Link className="navbar-brand" to="/">CineExplore</Link>
+      <Link className="navbar-brand" to="/">
+        CineExplore
+      </Link>
 
       {/* Botão do colapso no mobile */}
       <button
@@ -32,18 +44,18 @@ export default function Navbar() {
         <ul className="navbar-nav me-auto">
           {user && (
             <>
-              <li className="nav-item">
-                <Link className="nav-link" to="/">Filmes</Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/series">Series</Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/library">Biblioteca</Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/profile">Perfil</Link>
-              </li>
+              <Link className="nav-link" to="/" onClick={closeNavbar}>
+                Filmes
+              </Link>
+              <Link className="nav-link" to="/series" onClick={closeNavbar}>
+                Series
+              </Link>
+              <Link className="nav-link" to="/library" onClick={closeNavbar}>
+                Biblioteca
+              </Link>
+              <Link className="nav-link" to="/profile" onClick={closeNavbar}>
+                Perfil
+              </Link>
             </>
           )}
         </ul>
@@ -52,22 +64,23 @@ export default function Navbar() {
           {user ? (
             <>
               <li className="nav-item d-flex align-items-center me-2">
-                <span className="navbar-text text-light">Olá, {user.name} 👋</span>
+                <span className="navbar-text text-light">
+                  Olá, {user.name} 👋
+                </span>
               </li>
               <li className="nav-item">
-                <button className="btn btn-outline-light" onClick={handleLogout}>
+                <button
+                  className="btn btn-outline-light"
+                  onClick={handleLogout}
+                >
                   Sair
                 </button>
               </li>
             </>
           ) : (
             <>
-              <li className="nav-item">
-                <Link className="nav-link" to="/login">Entrar</Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/register">Cadastrar</Link>
-              </li>
+              <Link className="nav-link" to="/login" onClick={closeNavbar}>Entrar</Link>
+              <Link className="nav-link" to="/register" onClick={closeNavbar}>Cadastrar</Link>
             </>
           )}
         </ul>
