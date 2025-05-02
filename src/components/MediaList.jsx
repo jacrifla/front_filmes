@@ -11,7 +11,9 @@ export default function MediaList({
   handleComment,
   watchlistMap,
   lastMediaRef,
-  mediaType
+  mediaType,
+  getMediaDetails,
+  mediaDetails,
 }) {
   return (
     <div className="row">
@@ -36,6 +38,8 @@ export default function MediaList({
               handleRateMedia={handleRateMedia}
               onComment={handleComment}
               watchlistStatus={watchlistMap[media.id]}
+              getMediaDetails={getMediaDetails}
+              mediaDetails={mediaDetails}
             />
           </div>
         );

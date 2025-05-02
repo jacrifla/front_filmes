@@ -58,3 +58,34 @@
   opacity: 0.3;
   transition: opacity 0.3s ease;
 }
+
+
+.ribbon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-weight: bold;
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+}
+
+/* Cores diferentes por status */
+.returning-series {
+  background-color: #0d6efd;
+}
+
+.ended {
+  background-color: #6c757d;
+}
+
+.canceled {
+  background-color: #dc3545;
+}
+
+.in-production {
+  background-color: #198754;
+}

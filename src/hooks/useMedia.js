@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
-import tmdbService from '../services/tmdbService'
+import tmdbService from '../services/tmdbService';
 import { watchlistService } from '../services/watchlistService';
 import * as ratingService from '../services/ratingService';
 import { toast } from 'react-toastify';
 
 export default function useMedia(user, token, type = 'movie') {
   const [media, setMedia] = useState([]);
+  const [mediaDetails, setMediaDetails] = useState(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -15,15 +16,15 @@ export default function useMedia(user, token, type = 'movie') {
   const [searching, setSearching] = useState(false);
   const [genres, setGenres] = useState([]);
   const [selectedGenre, setSelectedGenre] = useState('');
+  const [selectedYear, setSelectedYear] = useState('');
 
   // === FETCH GENRES ===
   useEffect(() => {
     const fetchGenres = async () => {
       try {
-        const data = type === 'movie' 
-        ? await tmdbService.getGenres(type)
-        : await tmdbService.getSeriesGenres(type);
-               
+        const data = type === 'movie'
+          ? await tmdbService.getGenres(type)
+          : await tmdbService.getSeriesGenres(type);
         setGenres(data);
       } catch (err) {
         toast.error('Erro ao carregar gêneros.');
@@ -35,11 +36,14 @@ export default function useMedia(user, token, type = 'movie') {
   }, [type]);
 
   // === FETCH MEDIA ===
-  const fetchMedia = useCallback(async (pageToLoad = 1, genreId = selectedGenre) => {
+  const fetchMedia = useCallback(async (pageToLoad = 1, genreId = selectedGenre, year = selectedYear) => {
     setLoading(true);
     try {
       const params = { page: pageToLoad };
       if (genreId) params.with_genres = genreId;
+      if (year) {
+        params[type === 'movie' ? 'primary_release_year' : 'first_air_date_year'] = year;
+      }
 
       const data = type === 'series'
         ? await tmdbService.getPopularSeriesWithParams(params)
@@ -53,14 +57,18 @@ export default function useMedia(user, token, type = 'movie') {
     } finally {
       setLoading(false);
     }
-  }, [type, selectedGenre]);
+  }, [type, selectedGenre, selectedYear]);
 
   useEffect(() => {
-    fetchMedia(page);
-  }, [fetchMedia, page]);
+    setPage(1);
+    fetchMedia(1, selectedGenre, selectedYear);
+  }, [selectedYear, selectedGenre, fetchMedia]);
 
   const loadMoreMedia = () => {
-    if (page < totalPages) setPage(prev => prev + 1);
+    if (page < totalPages) {
+      setPage(prev => prev + 1);
+      fetchMedia(page + 1, selectedGenre, selectedYear);
+    }
   };
 
   // === FETCH RATINGS ===
@@ -91,6 +99,22 @@ export default function useMedia(user, token, type = 'movie') {
     fetchWatchlist();
   }, [user, token, type]);
 
+  // === DETALHES DE FILME OU SÉRIE ===
+  const getMediaDetails = async (id) => {
+    try {
+      const details = type === 'movie'
+        ? await tmdbService.getMovieDetails(id)
+        : await tmdbService.getSeriesDetails(id);
+
+      setMediaDetails(details);
+      return details;
+    } catch (err) {
+      toast.error('Erro ao buscar detalhes.');
+      console.error(err);
+      return null;
+    }
+  };
+
   // === HANDLERS ===
   const handleGenreChange = (e) => {
     const value = e.target.value;
@@ -98,6 +122,14 @@ export default function useMedia(user, token, type = 'movie') {
     setPage(1);
     fetchMedia(1, value);
   };
+
+  const handleYearChange = (e) => {
+    const year = e.target.value;
+    setSelectedYear(year);
+    setPage(1);
+    fetchMedia(1, selectedGenre);
+  };
+
 
   const handleSearchSubmit = async (e) => {
     e.preventDefault();
@@ -216,6 +248,8 @@ export default function useMedia(user, token, type = 'movie') {
 
   return {
     media,
+    mediaDetails,
+    getMediaDetails,
     page,
     totalPages,
     loading,
@@ -234,5 +268,8 @@ export default function useMedia(user, token, type = 'movie') {
     genres,
     handleGenreChange,
     selectedGenre,
+    selectedYear,
+    setSelectedYear,
+    handleYearChange
   };
 }

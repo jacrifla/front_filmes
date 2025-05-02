@@ -6,10 +6,23 @@ export default function FilterBar({
   onGenreChange,
   searchQuery,
   onSearchChange,
-  onSearchSubmit
+  onSearchSubmit,
+  selectedYear,
+  onYearChange,
 }) {
+  // Gera array de anos de 1900 até o ano atual, em ordem decrescente
+  const currentYear = new Date().getFullYear();
+  const years = Array.from(
+    { length: currentYear - 1899 },
+    (_, i) => currentYear - i
+  );
+
   return (
-    <form onSubmit={onSearchSubmit} className="row gx-2 gy-2 align-items-end mb-4">
+    <form
+      onSubmit={onSearchSubmit}
+      className="row gx-2 gy-2 align-items-end mb-4"
+    >
+      {/* Gênero */}
       <div className="col-12 col-sm-auto">
         <select
           id="genreSelect"
@@ -26,6 +39,23 @@ export default function FilterBar({
         </select>
       </div>
 
+      {/* Ano */}
+      <div className="col-12 col-sm-auto">
+        <select
+          className="form-select"
+          value={selectedYear}
+          onChange={onYearChange}
+        >
+          <option value="">Todos os anos</option>
+          {years.map((year) => (
+            <option key={year} value={year}>
+              {year}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Busca */}
       <div className="col-12 col-sm">
         <div className="d-flex">
           <input

@@ -29,6 +29,10 @@ export default function Series() {
     genres,
     handleGenreChange,
     selectedGenre,
+    getMediaDetails,
+    mediaDetails,
+    selectedYear,
+    handleYearChange,
   } = useMedia(user, token, 'series');
 
   if (loading && series.length === 0)
@@ -40,11 +44,13 @@ export default function Series() {
 
       <FilterBar
         genres={genres}
-        selectedGenre={selectedGenre}
+        onYearChange={handleYearChange}
         onGenreChange={handleGenreChange}
         searchQuery={searchQuery}
         onSearchChange={(e) => setSearchQuery(e.target.value)}
         onSearchSubmit={handleSearchSubmit}
+        selectedGenre={selectedGenre}
+        selectedYear={selectedYear}
       />
 
       {!searching && (
@@ -70,6 +76,8 @@ export default function Series() {
             handleComment={handleComment}
             watchlistMap={watchlistMap}
             mediaType="series"
+            getMediaDetails={getMediaDetails}
+            mediaDetails={mediaDetails}
           />
         </InfiniteScroll>
       )}
@@ -85,6 +93,8 @@ export default function Series() {
           handleComment={handleComment}
           watchlistMap={watchlistMap}
           mediaType="series"
+          getMediaDetails={getMediaDetails}
+          mediaDetails={mediaDetails}
         />
       )}
 

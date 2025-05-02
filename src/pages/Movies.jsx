@@ -28,6 +28,10 @@ export default function Movies() {
     genres,
     handleGenreChange,
     selectedGenre,
+    getMediaDetails,
+    mediaDetails,
+    selectedYear,
+    handleYearChange,
   } = useMedia(user, token, 'movie');
 
   if (loading && media.length === 0)
@@ -39,11 +43,13 @@ export default function Movies() {
 
       <FilterBar
         genres={genres}
-        selectedGenre={selectedGenre}
+        onYearChange={handleYearChange}
         onGenreChange={handleGenreChange}
         searchQuery={searchQuery}
         onSearchChange={(e) => setSearchQuery(e.target.value)}
         onSearchSubmit={handleSearchSubmit}
+        selectedGenre={selectedGenre}
+        selectedYear={selectedYear}
       />
 
       {!searching && (
@@ -68,14 +74,16 @@ export default function Movies() {
             handleRateMedia={handleRateMedia}
             handleComment={handleComment}
             watchlistMap={watchlistMap}
-            mediaType='movie'
+            mediaType="movie"
+            getMediaDetails={getMediaDetails}
+            mediaDetails={mediaDetails}
           />
         </InfiniteScroll>
       )}
 
       {searching && (
         <MediaList
-          media={media}
+          mediaList={media}
           ratings={ratings}
           user={user}
           handleAddToWatchlist={handleAddToWatchlist}
@@ -83,7 +91,9 @@ export default function Movies() {
           handleRateMedia={handleRateMedia}
           handleComment={handleComment}
           watchlistMap={watchlistMap}
-          mediaType='movie'
+          mediaType="movie"
+          getMediaDetails={getMediaDetails}
+          mediaDetails={mediaDetails}
         />
       )}
 
