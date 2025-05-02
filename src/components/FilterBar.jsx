@@ -9,11 +9,8 @@ export default function FilterBar({
   onSearchSubmit
 }) {
   return (
-    <div className="d-flex gap-3 align-items-end mb-4 flex-wrap">
-      <div>
-        <label htmlFor="genreSelect" className="form-label">
-          Filtrar por gênero
-        </label>
+    <form onSubmit={onSearchSubmit} className="row gx-2 gy-2 align-items-end mb-4">
+      <div className="col-12 col-sm-auto">
         <select
           id="genreSelect"
           className="form-select"
@@ -29,18 +26,21 @@ export default function FilterBar({
         </select>
       </div>
 
-      <form onSubmit={onSearchSubmit} className="d-flex flex-grow-1">
-        <input
-          type="text"
-          className="form-control me-2"
-          placeholder="Buscar por título, diretor ou ator"
-          value={searchQuery}
-          onChange={onSearchChange}
-        />
-        <button type="submit" className="btn btn-primary">
-          Buscar
-        </button>
-      </form>
-    </div>
+      <div className="col-12 col-sm">
+        <div className="d-flex">
+          <input
+            id="searchInput"
+            type="text"
+            className="form-control me-2"
+            placeholder="Buscar por título, diretor ou ator"
+            value={searchQuery}
+            onChange={onSearchChange}
+          />
+          <button type="submit" className="btn btn-primary">
+            Buscar
+          </button>
+        </div>
+      </div>
+    </form>
   );
 }
