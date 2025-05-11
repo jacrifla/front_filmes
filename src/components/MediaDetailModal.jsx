@@ -37,7 +37,7 @@ const MediaDetailModal = ({ show, onHide, media, mediaType }) => {
   const networkList = networks?.length
     ? networks.map(n => n.name).join(', ')
     : 'Não disponível';
-
+    
   return (
     <Modal show={show} onHide={onHide} size="lg" centered contentClassName="bg-dark-custom">
       <Modal.Header closeButton>

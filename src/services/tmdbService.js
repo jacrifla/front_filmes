@@ -51,7 +51,16 @@ export const searchMovies = async (query, page = 1) => {
 // Detalhes do Filme
 export const getMovieDetails = async (movieId) => {
   if (!movieId) throw new Error('ID do filme é obrigatório');
-  return fetchFromTMDB(`/movie/${movieId}`);
+  
+  const movieDetails = await fetchFromTMDB(`/movie/${movieId}`);
+  const credits = await getMovieCredits(movieId);
+  const director = credits.crew?.find(person => person.job === 'Director')?.name || 'Não disponível';
+  
+  return {
+    ...movieDetails,
+    cast: credits.cast,
+    director,
+  };
 };
 
 // Créditos do Filme
@@ -95,7 +104,14 @@ export const getSeriesDetails = async (seriesId) => {
 // Créditos da Série
 export const getSeriesCredits = async (seriesId) => {
   if (!seriesId) throw new Error('ID da série é obrigatório');
-  return fetchFromTMDB(`/tv/${seriesId}/credits`);
+  
+  const seriesDetails = await fetchFromTMDB(`/tv/${seriesId}`);
+  const credits = await getSeriesCredits(seriesId);
+  
+  return {
+    ...seriesDetails,
+    cast: credits.cast,
+  };
 };
 
 // Séries com Parâmetros
