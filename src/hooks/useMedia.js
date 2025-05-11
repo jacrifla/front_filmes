@@ -109,7 +109,6 @@ export default function useMedia(user, token, type = 'movie') {
       setMediaDetails(details);
       return details;
     } catch (err) {
-      toast.error('Erro ao buscar detalhes.');
       console.error(err);
       return null;
     }
